@@ -1,0 +1,391 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset="utf-8">
+    <!-- set styles on the top -->
+    <style>
+        .chart-container {
+            max-width: 1050px;
+            /* border: 2px solid red; */
+            margin: 0 auto;
+            /* auto centers the div */
+            font-family: 'Franklin Gothic Medium', 'Arial Narrow', 'Arial', 'sans-serif';
+        }
+
+        svg {
+            /* border: 2px solid purple; */
+            overflow: visible;
+        }
+
+        h1 {
+            margin-left: 30px;
+            /* border: 2px solid green; */
+        }
+        .dot {
+        stroke-width: 2px;
+        fill: white;
+    }
+        .x .tick line {
+            stroke: rgba(0, 0, 0, .2); 
+        }
+
+        .y .tick line {
+            stroke: rgba(0, 0, 0, .2);
+        }
+
+        .x .domain {
+            display: none;
+        }
+
+        .y .domain {
+            display: none;
+        }
+
+        .y .tick text {
+            font-size: 14px;
+            fill: #333;
+
+        }
+
+        .x .tick text {
+            font-size: 14px;
+            fill: #333;
+        }
+
+        .highlight {
+            color: purple;
+            text-decoration: underline;
+        }
+
+        .change-btn {
+            margin: 10px 0 0 30px;
+            width: 150px;
+            height: 30px;
+            cursor: pointer;
+        }
+
+        /* .inter{
+            fill: palevioletred
+        }
+        .mouse_labels {
+            display: none;
+            }
+
+        .line_path:hover+ .mouse_labels{
+            /* display: block; */
+            /* stroke-width: 5; */
+            /* color: red; */
+            /* }  */
+        .pop-up {
+            position: absolute; 
+            /* border: 1px solid black; */
+            border-radius: 1px;
+            line-height: 1.2;
+            width: 150px;
+            pointer-events: none;
+            /* background-color: white;
+            padding: 10px; */
+        }
+</style>
+</head>
+
+<body>
+    <div class="chart-container">
+        <h1 class="headline">
+            No. 1: Playoff wins <span class="highlight">by Year</span>
+        </h1>
+        <button class="change-btn"> Switch to By Age</button>
+        <svg width="1050px" height="1000px">
+            
+        </svg>
+        <!-- <div class="mouse_labels"></div>  -->
+        <div class="pop-up"></div> 
+
+    </div>
+</body>
+
+<script src="https://d3js.org/d3.v6.min.js"></script>
+<!-- we're using d3 version 6 (the latest version) for all out work -->
+
+<script>
+    console.log({ d3 })
+
+    let width = 900;
+    let height = 650;
+
+    let svg = d3.select("body")
+        .select("svg")
+
+    console.log(svg)
+
+
+    d3.csv("cumulative-stats.csv").then(function (datas) {
+            console.log({datas})
+
+
+        datas.forEach(function (row) {
+                row.att =+ row.att
+                row.comp =+ row.comp
+                row.pb_games =+ row.pb_games
+                row.playoff_games =+ row.playoff_games
+                row.playoff_wins =+ row.playoff_wins
+                row.tds =+ row.tds
+                row.yards =+ row.yards
+                row.year =+ row.year
+                row.age =+ row.age
+
+                // row.year = new Date( row.year)
+            })
+        data = datas.filter(d => d.max != "0")
+
+        let sel_var = "year";
+        let sel_max = "maxYear";
+
+        let margin = { top: 30, right: 10, bottom: 10, left: 10 };
+        
+        var key_player_id = ["StarBa00", "BradTe00", "TarkFr00","MontJo01","ElwaJo00"];
+        var key_player_name = ["Starr", "Bradshaw","Tarkenton", "Montana", "Elway"];
+
+
+        let circle_point = d3.rollups(data,
+                c => ({
+                    maxPlayoff_wins: d3.max(c, d =>(d.playoff_wins)),
+                    maxYear: d3.max(c, d => (d.year)),
+                    maxAge: d3.max(c, d => (d.age)),
+                    max: d3.max(c, d => (d[sel_var]))
+                }), d => d.last_name)
+        
+
+        let y = d3.scaleLinear()
+            .domain(d3.extent(data.map(function (d) { return d.playoff_wins })))
+            .range([height - margin.bottom, margin.top+10])
+
+        let x = d3.scaleLinear()
+            .domain(d3.extent(data.map(function (d) { return d[sel_var] }))) //d3 extent
+            .range([margin.left, width - margin.right])
+
+
+        let xAxisSettings = d3.axisBottom(x)
+                .ticks(8)
+                .tickSize(10)
+                .tickPadding(10)
+                .tickFormat(d3.format(".0f"))
+
+        let line = d3.line() //define a line function
+            .x(function (d) { return x(d[sel_var]) }) //accessing date 
+            .y(function (d) { return y(d.playoff_wins) }) //accesssing value
+
+
+            let yAxisSettings = d3.axisRight(y) //set axis to the left
+                .tickSize(-width+ margin.right+margin.left) //size of tick lines
+                .tickFormat(d3.format(".0f")) //what format do you want https://github.com/d3/d3-format 
+                .tickPadding(10) //distance from tick labels to tick marks
+                .tickValues([5,10,15,20,25,30,35])
+
+            let yAxisTicks = svg.append("g")
+                .attr("class", "y axis")
+                .call(yAxisSettings)
+                .attr("transform", `translate(${width - margin.right},0)`)
+            
+            let xAxisTicks = svg.append("g")
+                .attr("class", "x axis") //give each axis a class
+                .call(xAxisSettings)
+                .attr("transform", `translate(0,${height - margin.bottom})`)
+
+            let grouped_data = d3.group(data, d => d.player_id);
+            console.log(grouped_data)
+
+            let playas = Array.from(grouped_data.keys())
+            let popup = d3.select(".pop-up");
+            let line_path = svg.append("g")
+                .selectAll(".line")
+                .data(grouped_data)
+                .join("path")
+                .attr("class", function(d) {
+                    return "line" + d[0]})
+                .attr("d", function(d) {
+                    return line(d[1])})   // CHANGE NEEDED
+
+
+                .style("fill", "none")
+                .style("stroke", d=> {
+                    if(d[1][0].year_end =="2021") {
+                            return "#47b8f8"
+                    } else if (key_player_id.indexOf(d[0])> -1) {
+                            return "grey"
+                    } else {
+                            return "#dddddd"}
+                    })
+                .style("stroke-width", d => {
+                    if(d[0] == "BradTo00") {
+                        return "5px"
+                    } else {
+                        return "1px"}
+                })
+
+            let circle = svg.append("g")
+                .selectAll("circle")
+                .data(circle_point)
+                .enter()
+                .append("circle")
+                .filter(function(d) {return d[1].maxPlayoff_wins > 0})
+                .attr("class", "circle")
+                .attr("cx", function(d, i){return x(d[1][sel_max])})   // CHANGE NEEDED
+                .attr("cy", function(d, i){return y(d[1].maxPlayoff_wins)})
+                .attr("r", d=> {
+                        if(d[0] == "Brady") {
+                            return 5
+                        } else {
+                            return 1}
+                    })
+                .style("fill", d=> {
+                        if(d[1].maxYear == 2021 ) {
+                            return "#47b8f8"
+                        } else if (key_player_name.indexOf(d[0])>= 0) {
+                            return "grey"
+                        } else {
+                            return "#dddddd"}
+                    })
+                .style("stroke", d=> {
+                        if(d[1].maxYear == 2021 ) {
+                            return "#47b8f8"
+                        } else if (key_player_name.indexOf(d[0])>= 0) {
+                            return "grey"
+                        } else {
+                            return "#dddddd"}
+                    })
+
+
+            let labels = svg.append("g")
+                .selectAll("text")
+                .data(grouped_data)
+                // .filter(function(d) {return key_player_id.indexOf(d[0])>= 0}|| d[0]=="BradTo00")
+                .join("text")
+                .attr("class", function(d) {
+                    return "label" + d[0]})
+                .attr("x", d=> x(d[1][d[1].length-1][sel_var]))  // CHANGE NEEDED
+                .attr("y", d=> y(d[1][d[1].length-1].playoff_wins))
+                .attr("dy",  d=> {
+                    if(d[0] == "BradTo00") {
+                        return -15
+                    } else {return 3}
+                })
+                .attr("dx",  d=> {
+                    if(d[0] == "BradTo00") {
+                        return -60
+                    } else {return 5}
+                })
+                .text(d =>d[1][0].last_name)
+                .style("fill", d=> {
+                        if(d[0] == "BradTo00" ) {
+                            return "black"
+                        } else if (key_player_id.indexOf(d[0])>= 0) {
+                            return "grey"
+                        } else {
+                            return "none"}
+                    })
+                .style("font-size", d=> {
+                        if(d[0] == "BradTo00" ) {
+                            return "32px"
+                        } else {
+                            return "14px"}
+                    })
+
+        
+            let zeroline = svg.append("line") 
+                .attr("x1", margin.left)
+                .attr("x2", width)
+                .attr("y1", y(0))
+                .attr("y2", y(0))
+                .style("stroke", "#333")
+                .style("stroke-width", "1")
+                .style("opacity", 1)
+
+
+            line_path
+                .on("mouseover", function(event,d) {
+                    line_path
+                        if(d[1][d[1].length-1]["year_end"] <2021 && key_player_id.indexOf(d[0]) <0) {
+                            d3.select(this).style("stroke", "black").raise()
+                        }
+                    labels
+                        if(d[0] != "BradTo00") {
+                            d3.select(".label" + d[0]).style("fill", "none")}
+                    popup
+                        .style("opacity", 1)
+                        .style("left", (x(d[1][d[1].length-1][sel_var])+150) + "px")
+                        .style("top", (y(d[1][d[1].length-1].playoff_wins)+100) + "px")
+                        .html(d[1][0].player_name + " (" + d[1][d[1].length-1].playoff_wins + ")")    
+                })
+                .on("mouseout", function(event,d) {
+                    if(d[1][d[1].length-1]["year_end"] <2021 && key_player_id.indexOf(d[0]) <0) {
+                        d3.select(this).style("stroke", "#d0d0d0").lower()
+                    }
+                    labels
+                        .style("fill", d=> {
+                            if(d[0] == "BradTo00" ) {
+                                return "black"
+                            } else if (key_player_id.indexOf(d[0])>= 0) {
+                                return "grey"
+                            } else {
+                                return "none"}
+                        })
+                    popup
+                        .style("opacity", 0)
+                    })
+
+        
+
+        let button = d3.select(".change-btn").on("click", update)
+        let hed = d3.select(".headline")
+
+        function update() {
+            if (sel_var== "year") {
+                sel_var = "age"
+                sel_max = "maxAge"
+                button.html("Switch to By Year")
+                hed.html("No. 1: Playoff wins <span class = 'highlight'> by Age</span>")
+
+                xAxisSettings
+                    .tickValues([25,30,35,40])
+
+
+            } else {
+                sel_var = "year"
+                sel_max = "maxYear"
+                button.html("Switch to By Age")
+                hed.html("No. 1: Playoff wins <span class = 'highlight'> by Year</span>")
+
+
+                xAxisSettings
+                    .tickValues([1950,1960,1970,1980,1990,2000,2010,2020])
+            }
+
+            var t = d3.transition()
+            .duration(500)
+            .ease(d3.easeLinear);
+
+            x
+                .domain(d3.extent(data.map(function (d) { return d[sel_var] }))) //d3 extent
+                .range([margin.left, width - margin.right])
+            xAxisTicks
+                .call(xAxisSettings)
+            line_path
+                .transition(t)
+                .attr("d", function(d) {return line(d[1])})   // CHANGE NEEDED
+                
+            console.log(sel_var, sel_max)
+            circle
+                .transition(t)
+                .attr("cx", function(d, i){return x(d[1][sel_max])})   // CHANGE NEEDED
+                .attr("cy", function(d, i){return y(d[1].maxPlayoff_wins)})
+            labels
+                .transition(t)
+                .attr("x", d=> x(d[1][d[1].length-1][sel_var]))  // CHANGE NEEDED
+            }
+
+
+    })
+
+</script>
