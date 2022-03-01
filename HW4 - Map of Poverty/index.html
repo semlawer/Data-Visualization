@@ -1,0 +1,199 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset="utf-8">
+    <!-- set styles on the top -->
+    <style>
+        .chart-container {
+            max-width: 1050px;
+            /* border: 3px solid red; */
+            margin: 0 auto;
+            font-family: 'Franklin Gothic Medium', 'Arial Narrow', Arial, sans-serif;
+
+        }
+
+        svg {
+            /* border: 2px solid purple; */
+            overflow: visible;
+        }
+
+        h1 {
+            /* border: 2px solid green; */
+            font-size: 35px;
+            font-family: 'Franklin Gothic Medium', 'Arial Narrow', Arial, sans-serif;
+            /* margin: 20 auto; */
+        }
+
+        h2 {
+            /* border: 2px solid green; */
+            font-size: 20px;
+            font-family: 'Franklin Gothic Medium', 'Arial Narrow', Arial, sans-serif;
+        }
+        .pop-up {
+            font-size: 12px;
+            position: absolute; 
+            border: 1px solid black;
+            border-radius: 1px;
+            line-height: 1.2;
+            width: 200px;
+            pointer-events: none;
+            background-color: white;
+            padding: 10px;
+        }
+
+    </style>
+</head>
+
+<body>
+    <div class="chart-container">
+        <h1 class="headline">
+            The location of poverty-striken children in the United States
+        </h1>
+        <p> This map shows the number of children in poverty by county across the United States. 
+            The results seem consistent with the number of total people in each location. </p>
+        <svg width="1500px" height="650px"></svg>
+
+        <div class="pop-up">
+
+    </div>
+    <p> Note: This data is from the US Census Bureau </p>
+
+</body>
+
+<script src="https://d3js.org/d3.v6.min.js"></script>
+<!-- we're using d3 version 6 (the latest version) for all out work -->
+<script src="https://unpkg.com/topojson@3"></script>
+
+<script>
+    console.log(d3)
+    console.log({topojson})
+    Promise.all([
+        d3.json('output_final.json'),
+    ])
+        .then(ready)
+        .catch((err) => {
+            console.log(err);
+        });
+
+    function ready(res) {
+        console.log(res[0])
+        let raw = res[0]
+        let county = topojson.feature(raw, raw.objects.county);
+        let state = topojson.feature(raw, raw.objects.state);
+        let pov = topojson.feature(raw, raw.objects.pop_18_poverty);
+
+        let width = 1050;
+        let height = 500;
+
+        console.log(county.features)
+
+        let svg = d3.select("body").select('svg')
+
+        let myProjection = d3.geoAlbersUsa()
+            .fitSize([width, height], county)
+        // path function
+        let path = d3.geoPath()
+            .projection(myProjection)
+
+        let innerlines = topojson.mesh(raw, raw.objects.state, function (a,b) {
+            return a !=b;
+            });
+
+        svg
+            .selectAll(".states")
+            .data(state.features)
+            .join("path")
+            .attr("d", path)
+            .style("fill", "#eee")
+            .style("stroke", "black")
+            .style("pointer-events", "none")
+
+        let popup = d3.select(".pop-up")
+            .style("opacity", 0)
+
+        // let scale_function = d3.scaleSqrt()
+        //     .domain([])
+        //     .range([])
+
+        let states = svg
+                .append("path")
+                .attr("d", path(innerlines))
+                .style("fill", "none")
+                .style("stroke", "#333")
+                .style("stroke-width", "1")
+                .style("pointer-events", "none")
+
+        let counties = svg.append("g")
+            .selectAll(".counties")
+            .data(county.features.filter(d => !isNaN(path.centroid(d)[0])))
+            .join("circle")
+            .attr("r", d => Math.sqrt(d.properties.pop_18_in_poverty/300))
+            .attr("cx", d => {
+                return path.centroid(d)[0]
+            })
+            .attr("cy", d => {
+                return path.centroid(d)[1]
+            })
+            .attr("class", function (d) { return "circle c-" + d.properties.GEOID })
+            .style("fill", "orange")
+            .style("stroke", "none")
+            .style("stroke-width", "0.2")
+            .style("opacity", 0.8)
+        
+
+        counties.on("mouseover", (event, d) => {
+
+            // counties
+            //     .style("stroke", "#333333")
+            //     .style("stroke-width", .5)
+            //     .style("fill", "#c0cad8")
+            //     .style("fill-opacity", .5)
+
+            svg.select(".c-"+ d.properties.GEOID)
+                .style("stroke", "black")
+                .style("stroke-width", 2)
+                .style("fill", "#beaed4")
+                .style("fill-opacity", 1)
+                .style("opacity", 1)
+                .raise()
+
+            let lang = d.properties.Geo_QName + " has " + d3.format(",")(d.properties.pop_18_in_poverty) + " children under poverty."
+
+            popup
+                .style("opacity", 1)
+                .style("left", (event.x - 80) + "px")
+                .style("top", (event.y - 100) + "px")
+                .html(lang)
+    
+        })
+            
+        counties.on("mouseout", (event, d) => {
+            // console.log(event)
+            counties
+                .style("fill", "orange")
+                .style("stroke", "none")
+                .style("stroke-width", "0.2")
+
+            popup
+                .style("opacity", 0)
+
+        })
+
+
+
+            // svg.append("g")
+            // .selectAll(".state")
+            // .data(state.features)
+            // .join("path")
+            // .attr("d", path)
+            // .attr("class", d => d.properties.GEOID)
+            // .style("fill", "none")
+            // .style("stroke", "red")
+            // .style("stroke-width", "0.2")
+
+
+    }
+
+
+</script>
