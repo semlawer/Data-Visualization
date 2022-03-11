@@ -1,0 +1,25 @@
+<?xml version="1.0"?>
+<svg xmlns="http://www.w3.org/2000/svg" version="1.2" baseProfile="tiny" width="300" height="31" viewBox="0 0 300 31" stroke-linecap="butt" stroke-linejoin="round">
+<style>
+  path {shape-rendering: crispEdges;}
+</style>
+<g id="layer14">
+<path d="M 1 10.93 1 1 60.6 1 60.6 10.93 1 10.93 Z" fill="#f2f0f7"/>
+<path d="M 60.6 10.93 60.6 1 120.2 1 120.2 10.93 60.6 10.93 Z" fill="#cbc9e2"/>
+<path d="M 120.2 10.93 120.2 1 179.8 1 179.8 10.93 120.2 10.93 Z" fill="#9e9ac8"/>
+<path d="M 179.8 10.93 179.8 1 239.4 1 239.4 10.93 179.8 10.93 Z" fill="#756bb1"/>
+<path d="M 239.4 10.93 239.4 1 299 1 299 10.93 239.4 10.93 Z" fill="#54278f"/>
+</g>
+<g id="layer15" fill="none" stroke="black" stroke-width="1">
+<path d="M 60.6 1 60.6 16.89" stroke="rgba(0,0,0,0.3)"/>
+<path d="M 120.2 1 120.2 16.89" stroke="rgba(0,0,0,0.3)"/>
+<path d="M 179.8 1 179.8 16.89" stroke="rgba(0,0,0,0.3)"/>
+<path d="M 239.4 1 239.4 16.89" stroke="rgba(0,0,0,0.3)"/>
+</g>
+<g id="layer16" font-family="sans-serif" font-size="12" text-anchor="middle">
+<text y="0" x="0" transform="translate(60.6 29.9)" font-family="sans-serif" font-size="13" text-anchor="middle" fill="#555">5</text>
+<text y="0" x="0" transform="translate(120.2 29.9)" font-family="sans-serif" font-size="13" text-anchor="middle" fill="#555">9</text>
+<text y="0" x="0" transform="translate(179.8 29.9)" font-family="sans-serif" font-size="13" text-anchor="middle" fill="#555">12</text>
+<text y="0" x="0" transform="translate(239.4 29.9)" font-family="sans-serif" font-size="13" text-anchor="middle" fill="#555">16</text>
+</g>
+</svg>
