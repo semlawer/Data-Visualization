@@ -1,0 +1,269 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset="utf-8">
+    <!-- set styles on the top -->
+    <style>
+        .chart-container {
+            max-width: 1050px;
+            /* border: 2px solid red; */
+            margin: 0 auto;
+            /* auto centers the div */
+            font-family: 'Franklin Gothic Medium', 'Arial Narrow', Arial, sans-serif;
+        }
+
+        svg {
+            /* border: 2px solid purple; */
+            overflow: visible;
+        }
+
+        h1 {
+            /* border: 2px solid green; */
+            text-align: center;
+            margin: 0 auto;
+            font-family: "Times New Roman", Times, serif;
+
+        }
+        h2 {
+            /* border: 2px solid green; */
+            /* margin-left: 10px; */
+            font-family: "Times New Roman", Times, serif;
+
+        }
+        p {
+            margin: 0 auto;
+            max-width: 1050px;
+            font-family: "Times New Roman", Times, serif;
+            font-size: 16px;
+        }
+
+        #background {
+            margin: 0 auto;
+            max-width: 1050px;
+            font-family: "Times New Roman", Times, serif;
+            font-size: 18px;
+        }
+
+        .x .tick line {
+            stroke: #999;
+        }
+
+        .y .tick line {
+            stroke: #999;
+        }
+
+        .x .domain {
+            display: none;
+        }
+
+        .y .domain {
+            display: none;
+        }
+
+        .y .tick text {
+            font-size: 14px;
+            fill: rgb(0, 0, 0);
+        }
+
+        .x .tick text {
+            font-size: 14px;
+            fill: #333;
+        }
+        .year-container {
+            max-width: 1050px;
+            /* border: 2px solid red; */
+            margin: 0 auto;
+            /* auto centers the div */
+            font-family: 'Franklin Gothic Medium', 'Arial Narrow', Arial, sans-serif;
+        }
+        .grid {
+            display: grid;
+            grid-template-columns: 300px 300px 300px;
+            /* grid-template-rows: 500px 500px; */
+            row-gap: 50px;
+            column-gap: 50px;
+            margin-left: 10px;
+        }
+        .key {
+            margin-left: 10px;
+        }
+        img {
+            width: 100%;
+        }
+        .states {
+            stroke: #fff;
+            stroke-width:1px;
+        }
+        .states:hover{
+        opacity: .6;
+        }
+
+        #slidecontainer {
+            text-align: center;
+            position: relative;
+            top: 600px;
+        }
+
+        #legend {
+            font-size: 0.7em;
+            letter-spacing: 0.1;
+            }
+
+        .pop-up-1 {
+            font-family: "Times New Roman", Times, serif;
+            font-size: 12px;
+            position: fixed; 
+            border: 1px solid black;
+            border-radius: 1px;
+            line-height: 1.2;
+            width: 310px;
+            pointer-events: none;
+            background-color: white;
+            padding: 10px;
+        }
+
+        #pop-up-2 {
+            font-family: "Times New Roman", Times, serif;
+            font-size: 12px;
+            position: fixed; 
+            border: 1px solid black;
+            border-radius: 1px;
+            line-height: 1.2;
+            width: 235px;
+            pointer-events: none;
+            background-color: white;
+            padding: 5px;
+        }
+
+        #source {
+            font-size: 12px;
+        }
+
+        /* #line-chart{
+            display: block;
+            margin: 0 auto;
+        } */
+
+    </style>
+    <script src="https://d3js.org/d3.v6.min.js"></script>
+    <script src="https://unpkg.com/topojson@3"></script>
+    <script src="https://d3js.org/colorbrewer.v1.min.js"></script>
+    <script src="http://labratrevenge.com/d3-tip/javascripts/d3.tip.v0.6.3.js"></script>
+
+</head>
+
+<body>
+    <h1 class="headline">
+        Is There Unspoken Demand for Abortions?
+    </h1>
+    <div id="background"> <br> Abortion rates have been declining sharply in the last 15 years. Many anti-choice groups attribute that 
+        to the abortion laws put into place while pro-choice groups attribute this to less unintended pregnancy and better sexual education.
+        The policy implications of this decline are important to understand. In this article, we will see if the demand for abortion
+        is influenced by the increasingly restrictive laws put into place. If demand, especially in states with more restrictive laws, is high that would support 
+        the fact that there are women wanting abortions that are unable to resoundingly advocate for them. <br> </div>
+    </p>
+    <div class="chart-container" id="lines_chart">
+        <h2 class="headline">
+            Abortion rate has swiftly declined in the last 10 years
+        </h2>
+        <p> After the monumentous decision in Roe v. Wade, the abortion rate increased throughout the 70s and held steady throughout the 80s
+            despite discriminatory policies like the Hyde Amendment. After the "undue burden" framework was created in Planned Parenthood v. Casey in 1992,
+            rates declined sharply the year following and then steadily up until 2008. From then on, abortion rates have continued to decrease and have
+            now fallen to lowest level since Roe v. Wade.
+        </p>
+        <svg width="1050px" height="560px" id="line-chart"> </svg>
+        <p id="source"> Source: Guttmacher Institute  </p>
+    </div>
+    <br> <br> 
+    <div class="year-container">
+        <h2 class="headline">
+            Now, let's try to understand the breakdown of the decline in abortion in these last 10 years by state
+        </h1>
+        <p> The breakdown by state helps illustrate the decrease in abortion rate we saw overall. The decrease is 
+            especially poignant in the Midwest and South. Interestingly, we see a similar story both when looking 
+            at abortion rate by state of occurrence and by state of residence. </p>
+        <h3>
+            Abortion Rate by State of Occurrence
+        </h3>
+
+        <div class="key">
+            <img src="data/simple-key.svg" style="width:200px;height:auto;">
+        </div> 
+        <br>
+        <div class="grid">
+            <img src="data/2010_occ.svg">
+            <img src="data/2013_occ.svg">
+            <img src="data/2017_occ.svg">
+            <br>
+        </div>
+
+        <h3>
+            Abortion Rate by State of Residence
+        </h3>
+        <div class="key">
+            <img src="data/simple-key (1).svg" style="width:200px;height:auto;">
+        </div> 
+        <br>
+        <div class="grid">
+            <img src="data/2010_res.svg">
+            <img src="data/2013_res.svg">
+            <img src="data/2017_res.svg">
+            <br>
+        </div>
+        <p id="source"> Source: Kaiser Family Foundation using Guttmacher Institute data </p>
+        <br>
+
+    </div>
+    <br> 
+
+    <div class="chart-container" id="laws_chart">
+        <h2 class="headline">
+            26 states had restrictive or highly restrictive abortion access in 2017
+        </h2>
+        <p> In the last 10 years the number of restrictive abortion laws have increased exponentially. 
+            States continued their assault on abortion in 2017, with 63 new restrictions put in place.
+            Now, more than 50% of women of reproducive age live in a state considered to have restrictive or highly
+            restrictive abortion access. Additionally, many states in this category have laws that directly 
+            conflict with scientific evidence.
+              </p>
+        <br>
+        <p> <i>Hover over a state to see what abortion access is like there:</i></p>
+        <br>
+        <svg width="1050px" height="600px" id="law"> </svg>
+        <div class="pop-up-1"></div> 
+        <p id="source"> Source: Kaiser Family Foundation using Guttmacher Institute data </p>
+    </div>
+    <br> <br>
+    <div class="chart-container" id="trends_chart">
+        <h2 class="headline">
+
+            Googling abortion was just as popular in states with more restrictive laws  
+        </h2>
+        <p> It has been said that Google is like a truth serum. So looking at the Google Trends for abortion searches
+            can let us estimate how much demand there is for abortion in the state. Google Trends returns the number 
+            of relative searches so values are calculated on a scale from 0 to 100, where 100 is the location with
+             the most popularity as a fraction of total searches in that location, and a value of 50 indicates a 
+             location where that search is half as popular. With this in mind, we see that more 
+             restrive states are just as interested in abortion over the years. For example, in 2017 the year we looked at above,
+            67% of the states with a relative search popularity of 80+ had restrictive or highly restrictive abortion access.
+            </p>
+        <br>
+        <label><b>Choose a Year</b></label>
+        <div id="sliderContainer">
+            <input id="timeslide" type="range" min="0" max="10" value="10" step="1"/><br>
+            <span id="range">2019</span>
+        </div>
+
+        <svg width="1500px" height="600px" id="trends"></svg>
+        <div id="pop-up-2"></div> 
+        <p id="source"> Source: Google trends API </p>
+
+    </div>
+
+</body>
+
+<script src="scripts/line_chart.js"></script>
+<script src="scripts/law.js"></script>
+<script src="scripts/trends.js"></script>
+
